@@ -24,20 +24,16 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Cache Gradle packages
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle
+      # 使用官方的 Gradle 设置动作，它会自动处理缓存和缺失的 wrapper jar
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
-      - name: Fix gradlew line endings and permissions
-        run: |
-          sed -i 's/\r$//' gradlew   # 👈 强制将 gradlew 转换为 Unix 换行符
-          chmod +x gradlew
+      # 如果 wrapper jar 缺失，强制生成它
+      - name: Generate Gradle Wrapper
+        run: gradle wrapper
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
       - name: Build APK
         run: ./gradlew assembleDebug
