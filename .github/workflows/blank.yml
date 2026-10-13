@@ -24,9 +24,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew      # 👈 加上这行，防止构建失败
-
       - name: Cache Gradle packages
         uses: actions/cache@v4
         with:
@@ -36,6 +33,11 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle
+
+      - name: Fix gradlew line endings and permissions
+        run: |
+          sed -i 's/\r$//' gradlew   # 👈 强制将 gradlew 转换为 Unix 换行符
+          chmod +x gradlew
 
       - name: Build APK
         run: ./gradlew assembleDebug
