@@ -24,11 +24,16 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # 使用官方的 Gradle 设置动作，它会自动处理缓存和缺失的 wrapper jar
+      # 👈 核心步骤：删除原作者写死的本地 Java 路径
+      - name: Remove invalid Java home from gradle.properties
+        run: |
+          if [ -f gradle.properties ]; then
+            sed -i '/org.gradle.java.home/d' gradle.properties
+          fi
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      # 如果 wrapper jar 缺失，强制生成它
       - name: Generate Gradle Wrapper
         run: gradle wrapper
 
